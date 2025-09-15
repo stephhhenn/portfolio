@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stephen's Portfolio</title>
+  <style>
+    body {
+      background: #111;
+      color: #33ff33;
+      font-family: monospace;
+      padding: 20px;
+      overflow: hidden;
+    }
+    #terminal {
+      white-space: pre-wrap;
+    }
+    .input-line {
+      display: inline;
+    }
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      background: #33ff33;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      50% { background: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+  <div id="current-line" style="display:none;">stephen@MacBookPro ~ % <span class="input-line"></span><span class="cursor"></span></div>
+
+  <script>
+    const terminal = document.getElementById("terminal");
+    const currentLine = document.getElementById("current-line").querySelector(".input-line");
+
+    const commands = {
+      "whoami": "Name: Stephen Torroba\nRole: Aspiring Cyber Security Engineer\nGoal: To protect and secure systems.",
+      "skills": "Python, Linux, Networking, Web Security, Ethical Hacking",
+      "projects": "1. Project A\n2. Project B\n3. Project C",
+      "contact": "Email: stephen@torroba.me\nLinkedIn: linkedin.com/in/stephentorroba",
+      "help": "Available commands: whoami, skills, projects, contact, help",
+      "clear": "clear"
+    };
+
+    let currentInput = "";
+    let history = [];
+    let historyIndex = -1;
+
+    // Show fake boot message
+    const loginMessage = `Last login: ${new Date().toDateString()} ${new Date().toLocaleTimeString()} on console\n`;
+    terminal.textContent = loginMessage;
+
+    // Delay before showing prompt
+    setTimeout(() => {
+      document.getElementById("current-line").style.display = "block";
+    }, 1200);
+
+    document.addEventListener("keydown", (e) => {
+      if (document.getElementById("current-line").style.display === "none") return;
+
+      if (e.key === "Enter") {
+        processCommand(currentInput.trim());
+        if (currentInput) history.unshift(currentInput);
+        historyIndex = -1;
+        currentInput = "";
+      } else if (e.key === "Backspace") {
+        currentInput = currentInput.slice(0, -1);
+      } else if (e.key === "ArrowUp") {
+        if (historyIndex + 1 < history.length) {
+          historyIndex++;
+          currentInput = history[historyIndex];
+        }
+      } else if (e.key === "ArrowDown") {
+        if (historyIndex > 0) {
+          historyIndex--;
+          currentInput = history[historyIndex];
+        } else {
+          historyIndex = -1;
+          currentInput = "";
+        }
+      } else if (e.key.length === 1) {
+        currentInput += e.key;
+      }
+      render();
+    });
+
+    function processCommand(cmd) {
+      if (cmd === "clear") {
+        terminal.textContent = loginMessage;
+        return;
+      }
+      terminal.textContent += `stephen@MacBookPro ~ % ${cmd}\n${commands[cmd] || "Command not found. Type 'help' for options."}\n`;
+    }
+
+    function render() {
+      currentLine.textContent = currentInput;
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  </script>
+</body>
+</html>
