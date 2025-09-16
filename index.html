@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Stephen's Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- NEW -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #111;
       color: #33ff33;
       font-family: monospace;
       padding: 20px;
-      overflow-x: hidden; /* NEW: allow vertical scroll on mobile */
+      overflow-x: hidden;
       overflow-y: auto;
     }
     #terminal {
       white-space: pre-wrap;
-      word-break: break-word; /* NEW: wrap long lines on small screens */
+      word-break: break-word;
+      min-height: 60vh;
     }
     .input-line {
       display: inline;
@@ -30,12 +31,21 @@
       50% { background: transparent; }
     }
 
-    /* NEW: hidden input field for mobile */
+    /* hidden input for mobile */
     #mobile-input {
       position: absolute;
       bottom: -50px;
       opacity: 0;
       pointer-events: none;
+    }
+
+    /* hint for mobile users */
+    #tap-hint {
+      color: #33ff33;
+      font-size: 14px;
+      margin-top: 10px;
+      opacity: 0.7;
+      display: none;
     }
   </style>
 </head>
@@ -43,13 +53,14 @@
   <div id="terminal"></div>
   <div id="current-line" style="display:none;">stephen@MacBookPro ~ % <span class="input-line"></span><span class="cursor"></span></div>
 
-  <!-- NEW hidden input for mobile -->
   <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div id="tap-hint">💡 Tap anywhere to start typing</div>
 
   <script>
     const terminal = document.getElementById("terminal");
     const currentLine = document.getElementById("current-line").querySelector(".input-line");
-    const mobileInput = document.getElementById("mobile-input"); // NEW
+    const mobileInput = document.getElementById("mobile-input");
+    const tapHint = document.getElementById("tap-hint");
 
     const commands = {
       "whoami": "Name: Stephen Torroba\nRole: Aspiring Cyber Security Engineer\nGoal: To protect and secure systems.",
@@ -69,8 +80,14 @@
 
     setTimeout(() => {
       document.getElementById("current-line").style.display = "block";
-      mobileInput.focus(); // NEW: auto-focus hidden input on load
+      tapHint.style.display = "block"; // show tap hint on mobile
     }, 1200);
+
+    // Let user tap anywhere to trigger keyboard
+    document.body.addEventListener("click", () => {
+      mobileInput.focus();
+      tapHint.style.display = "none"; // hide hint once user taps
+    });
 
     // Desktop keyboard support
     document.addEventListener("keydown", (e) => {
