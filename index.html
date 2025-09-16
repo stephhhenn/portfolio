@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Stephen's Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- NEW -->
   <style>
     body {
       background: #111;
       color: #33ff33;
       font-family: monospace;
       padding: 20px;
-      overflow: hidden;
+      overflow-x: hidden; /* NEW: allow vertical scroll on mobile */
+      overflow-y: auto;
     }
     #terminal {
       white-space: pre-wrap;
+      word-break: break-word; /* NEW: wrap long lines on small screens */
     }
     .input-line {
       display: inline;
@@ -26,15 +29,27 @@
     @keyframes blink {
       50% { background: transparent; }
     }
+
+    /* NEW: hidden input field for mobile */
+    #mobile-input {
+      position: absolute;
+      bottom: -50px;
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <div id="terminal"></div>
   <div id="current-line" style="display:none;">stephen@MacBookPro ~ % <span class="input-line"></span><span class="cursor"></span></div>
 
+  <!-- NEW hidden input for mobile -->
+  <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
   <script>
     const terminal = document.getElementById("terminal");
     const currentLine = document.getElementById("current-line").querySelector(".input-line");
+    const mobileInput = document.getElementById("mobile-input"); // NEW
 
     const commands = {
       "whoami": "Name: Stephen Torroba\nRole: Aspiring Cyber Security Engineer\nGoal: To protect and secure systems.",
@@ -49,31 +64,47 @@
     let history = [];
     let historyIndex = -1;
 
-    // Show fake boot message
     const loginMessage = `Last login: ${new Date().toDateString()} ${new Date().toLocaleTimeString()} on console\n`;
     terminal.textContent = loginMessage;
 
-    // Delay before showing prompt
     setTimeout(() => {
       document.getElementById("current-line").style.display = "block";
+      mobileInput.focus(); // NEW: auto-focus hidden input on load
     }, 1200);
 
+    // Desktop keyboard support
     document.addEventListener("keydown", (e) => {
       if (document.getElementById("current-line").style.display === "none") return;
+      handleKey(e.key);
+    });
 
+    // Mobile input support
+    mobileInput.addEventListener("input", () => {
+      currentInput = mobileInput.value;
+      render();
+    });
+    mobileInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        e.preventDefault();
+        handleKey("Enter");
+        mobileInput.value = "";
+      }
+    });
+
+    function handleKey(key) {
+      if (key === "Enter") {
         processCommand(currentInput.trim());
         if (currentInput) history.unshift(currentInput);
         historyIndex = -1;
         currentInput = "";
-      } else if (e.key === "Backspace") {
+      } else if (key === "Backspace") {
         currentInput = currentInput.slice(0, -1);
-      } else if (e.key === "ArrowUp") {
+      } else if (key === "ArrowUp") {
         if (historyIndex + 1 < history.length) {
           historyIndex++;
           currentInput = history[historyIndex];
         }
-      } else if (e.key === "ArrowDown") {
+      } else if (key === "ArrowDown") {
         if (historyIndex > 0) {
           historyIndex--;
           currentInput = history[historyIndex];
@@ -81,11 +112,11 @@
           historyIndex = -1;
           currentInput = "";
         }
-      } else if (e.key.length === 1) {
-        currentInput += e.key;
+      } else if (key.length === 1) {
+        currentInput += key;
       }
       render();
-    });
+    }
 
     function processCommand(cmd) {
       if (cmd === "clear") {
