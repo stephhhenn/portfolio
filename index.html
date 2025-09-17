@@ -2,20 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stephen's Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- NEW -->
+  <title>CyberSec Portfolio</title>
   <style>
     body {
       background: #111;
       color: #33ff33;
       font-family: monospace;
       padding: 20px;
-      overflow-x: hidden; /* NEW: allow vertical scroll on mobile */
-      overflow-y: auto;
+      overflow: hidden;
     }
     #terminal {
       white-space: pre-wrap;
-      word-break: break-word; /* NEW: wrap long lines on small screens */
     }
     .input-line {
       display: inline;
@@ -29,33 +26,21 @@
     @keyframes blink {
       50% { background: transparent; }
     }
-
-    /* NEW: hidden input field for mobile */
-    #mobile-input {
-      position: absolute;
-      bottom: -50px;
-      opacity: 0;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
   <div id="terminal"></div>
   <div id="current-line" style="display:none;">stephen@MacBookPro ~ % <span class="input-line"></span><span class="cursor"></span></div>
 
-  <!-- NEW hidden input for mobile -->
-  <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-
   <script>
     const terminal = document.getElementById("terminal");
     const currentLine = document.getElementById("current-line").querySelector(".input-line");
-    const mobileInput = document.getElementById("mobile-input"); // NEW
 
     const commands = {
-      "whoami": "Name: Stephen Torroba\nRole: Aspiring Cyber Security Engineer\nGoal: To protect and secure systems.",
+      "whoami": "Name: John Doe\nRole: Aspiring Cyber Security Engineer\nGoal: To protect and secure systems.",
       "skills": "Python, Linux, Networking, Web Security, Ethical Hacking",
       "projects": "1. Project A\n2. Project B\n3. Project C",
-      "contact": "Email: stephen@torroba.me\nLinkedIn: linkedin.com/in/stephentorroba",
+      "contact": "Email: john@example.com\nLinkedIn: linkedin.com/in/john",
       "help": "Available commands: whoami, skills, projects, contact, help",
       "clear": "clear"
     };
@@ -64,47 +49,31 @@
     let history = [];
     let historyIndex = -1;
 
+    // Show fake boot message
     const loginMessage = `Last login: ${new Date().toDateString()} ${new Date().toLocaleTimeString()} on console\n`;
     terminal.textContent = loginMessage;
 
+    // Delay before showing prompt
     setTimeout(() => {
       document.getElementById("current-line").style.display = "block";
-      mobileInput.focus(); // NEW: auto-focus hidden input on load
     }, 1200);
 
-    // Desktop keyboard support
     document.addEventListener("keydown", (e) => {
       if (document.getElementById("current-line").style.display === "none") return;
-      handleKey(e.key);
-    });
 
-    // Mobile input support
-    mobileInput.addEventListener("input", () => {
-      currentInput = mobileInput.value;
-      render();
-    });
-    mobileInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        e.preventDefault();
-        handleKey("Enter");
-        mobileInput.value = "";
-      }
-    });
-
-    function handleKey(key) {
-      if (key === "Enter") {
         processCommand(currentInput.trim());
         if (currentInput) history.unshift(currentInput);
         historyIndex = -1;
         currentInput = "";
-      } else if (key === "Backspace") {
+      } else if (e.key === "Backspace") {
         currentInput = currentInput.slice(0, -1);
-      } else if (key === "ArrowUp") {
+      } else if (e.key === "ArrowUp") {
         if (historyIndex + 1 < history.length) {
           historyIndex++;
           currentInput = history[historyIndex];
         }
-      } else if (key === "ArrowDown") {
+      } else if (e.key === "ArrowDown") {
         if (historyIndex > 0) {
           historyIndex--;
           currentInput = history[historyIndex];
@@ -112,11 +81,11 @@
           historyIndex = -1;
           currentInput = "";
         }
-      } else if (key.length === 1) {
-        currentInput += key;
+      } else if (e.key.length === 1) {
+        currentInput += e.key;
       }
       render();
-    }
+    });
 
     function processCommand(cmd) {
       if (cmd === "clear") {
